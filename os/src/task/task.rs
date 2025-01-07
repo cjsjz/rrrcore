@@ -8,10 +8,12 @@ use crate::trap::{trap_handler, TrapContext};
 use alloc::sync::{Arc, Weak};
 use alloc::vec::Vec;
 use core::cell::RefMut;
-
+/// 任务控制块，用于管理每个任务的相关信息和状态。
 pub struct TaskControlBlock {
     // immutable
+    /// 任务的进程 ID
     pub pid: PidHandle,
+    /// 内核栈
     pub kernel_stack: KernelStack,
     // mutable
     inner: UPSafeCell<TaskControlBlockInner>,
@@ -50,9 +52,14 @@ impl TaskControlBlockInner {
 }
 
 impl TaskControlBlock {
+    /// 创建一个新的任务控制块
+    ///
+    
     pub fn inner_exclusive_access(&self) -> RefMut<'_, TaskControlBlockInner> {
         self.inner.exclusive_access()
     }
+    /// # 参数
+    /// - `elf_data` - 程序的 ELF 文件数据
     pub fn new(elf_data: &[u8]) -> Self {
         // memory_set with elf program headers/trampoline/trap context/user stack
         let (memory_set, user_sp, entry_point) = MemorySet::from_elf(elf_data);
@@ -92,6 +99,7 @@ impl TaskControlBlock {
         );
         task_control_block
     }
+    /// 执行一个新的程序
     pub fn exec(&self, elf_data: &[u8]) {
         // memory_set with elf program headers/trampoline/trap context/user stack
         let (memory_set, user_sp, entry_point) = MemorySet::from_elf(elf_data);
@@ -119,6 +127,9 @@ impl TaskControlBlock {
         );
         // **** release inner automatically
     }
+    ///xygenate a new child task from current task
+    ///
+    /// # 返回值
     pub fn fork(self: &Arc<Self>) -> Arc<Self> {
         // ---- access parent PCB exclusively
         let mut parent_inner = self.inner_exclusive_access();
@@ -159,14 +170,24 @@ impl TaskControlBlock {
         // ---- release parent PCB automatically
         // **** release children PCB automatically
     }
+    /// 获取当前任务的进程 ID
+///
+/// # 返回值
+/// 返回当前任务的进程 ID。
     pub fn getpid(&self) -> usize {
         self.pid.0
     }
 }
 
 #[derive(Copy, Clone, PartialEq)]
+/// The status of a task
 pub enum TaskStatus {
+    /// Task is ready to run
     Ready,
+    /// Task is currently running
     Running,
+    /// Task is waiting for a semaphore
     Zombie,
+    /// Task is blocked on a resource
+    Blocked,
 }
