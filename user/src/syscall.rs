@@ -15,6 +15,8 @@ const SYSCALL_SEMAPHORE_CREATE: usize = 1020;
 const SYSCALL_SEMAPHORE_UP: usize = 1021;
 const SYSCALL_SEMAPHORE_DOWN: usize = 1022;
 
+const SYSCALL_GET: usize = 2024;
+const SYSCALL_SET: usize = 2025;
 fn syscall(id: usize, args: [usize; 3]) -> isize {
     let mut ret: isize;
     unsafe {
@@ -83,4 +85,11 @@ pub fn sys_semaphore_up(id: usize) -> isize {
 
 pub fn sys_semaphore_down(id: usize) -> isize {
     syscall(SYSCALL_SEMAPHORE_DOWN, [id, 0, 0])
+}
+pub fn sys_get_share() -> isize {
+    syscall(SYSCALL_GET, [0, 0, 0])
+}
+
+pub fn sys_set_share() {
+    syscall(SYSCALL_SET, [0, 0, 0]);
 }

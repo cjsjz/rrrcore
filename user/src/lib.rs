@@ -12,7 +12,6 @@ use buddy_system_allocator::LockedHeap;
 use syscall::*;
 
 const USER_HEAP_SIZE: usize = 16384;
-
 static mut HEAP_SPACE: [u8; USER_HEAP_SIZE] = [0; USER_HEAP_SIZE];
 
 #[global_allocator]
@@ -98,4 +97,10 @@ pub fn semaphore_up(sem_id: usize) {
 }
 pub fn semaphore_down(sem_id: usize) {
     sys_semaphore_down(sem_id);
+}
+pub fn get_share() -> isize {
+    sys_get_share()
+}
+pub fn set_share() {
+    sys_set_share();
 }
