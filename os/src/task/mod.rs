@@ -28,6 +28,7 @@ use alloc::sync::Arc;
 use lazy_static::*;
 pub use manager::{fetch_task, TaskManager};
 use switch::__switch;
+use crate::timer::remove_timer;
 
 pub use task::{TaskControlBlock, TaskStatus};
 pub use context::TaskContext;
@@ -100,6 +101,7 @@ pub fn exit_current_and_run_next(exit_code: i32) {
     inner.children.clear();
     // deallocate user space
     inner.memory_set.recycle_data_pages();
+    remove_timer(Arc::clone(&task));
     drop(inner);
     // **** release current PCB
     // drop task manually to maintain rc correctly

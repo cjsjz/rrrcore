@@ -19,6 +19,7 @@ const SYSCALL_FORK: usize = 220;
 const SYSCALL_EXEC: usize = 221;
 const SYSCALL_WAITPID: usize = 260;
 
+const SYSCALL_SLEEP: usize = 101;
 const SYSCALL_SEMAPHORE_CREATE: usize = 1020;
 const SYSCALL_SEMAPHORE_UP: usize = 1021;
 const SYSCALL_SEMAPHORE_DOWN: usize = 1022;
@@ -41,6 +42,7 @@ pub fn syscall(syscall_id: usize, args: [usize; 3]) -> isize {
         SYSCALL_GETPID => sys_getpid(),
         SYSCALL_FORK => sys_fork(),
         SYSCALL_EXEC => sys_exec(args[0] as *const u8),
+        SYSCALL_SLEEP => sys_sleep(args[0]),
         SYSCALL_SEMAPHORE_CREATE => sys_semaphore_create(args[0]),
         SYSCALL_SEMAPHORE_UP => sys_semaphore_up(args[0]),
         SYSCALL_SEMAPHORE_DOWN => sys_semaphore_down(args[0]),
