@@ -8,9 +8,9 @@ use user_lib::{ fork, getpid, waitpid, get_share, set_share, sleep, semaphore_cr
 use user_lib::Vec;
 #[no_mangle]
 pub fn main() -> i32 {
-    let mutex:isize = semaphore_create(1);
-    let empty:isize = semaphore_create(10);
-    let full:isize = semaphore_create(0);
+    //let mutex:isize = semaphore_create(1);
+    //let empty:isize = semaphore_create(10);
+    //let full:isize = semaphore_create(0);
     let mut children: Vec<isize> = Vec::new();
 
     // 创建3个生产者子进程
@@ -19,12 +19,12 @@ pub fn main() -> i32 {
         if pid == 0 {
             // 这是子进程，执行生产者逻辑
             for _ in 0..10 {
-                semaphore_down(empty as usize);
-                semaphore_down(mutex as usize);
+                //semaphore_down(empty as usize);
+                //semaphore_down(mutex as usize);
                 set_share(getpid());
-                semaphore_up(mutex as usize);
-                semaphore_up(full as usize);
-                sleep(1);
+                //semaphore_up(mutex as usize);
+                //semaphore_up(full as usize);
+                //sleep(1);
             }
             return 0; // 结束生产者子进程
         } else {
@@ -39,12 +39,12 @@ pub fn main() -> i32 {
         if pid == 0 {
             // 这是子进程，执行消费者逻辑
             for _ in 0..10 {
-                semaphore_down(full as usize);
-                semaphore_down(mutex as usize);
+                //semaphore_down(full as usize);
+                //semaphore_down(mutex as usize);
                 get_share(getpid());
-                semaphore_up(mutex as usize);
-                semaphore_up(empty as usize);
-                sleep(1);
+                //semaphore_up(mutex as usize);
+                //semaphore_up(empty as usize);
+                //sleep(1);
             }
             return 0; // 结束消费者子进程
         } else {

@@ -23,8 +23,7 @@ impl Circlebuf {
     }
     pub fn push(&mut self, pid: usize) {
         self.buf[self.write_pos] = pid as i32;
-        self.buf_count += 1;
-        sys_sleep(1);
+        //sys_sleep(1);
         println!("processer {} push valuse {} to {}",pid,pid,self.write_pos);
         self.write_pos = (self.write_pos + 1) % 10;
     }
@@ -32,8 +31,7 @@ impl Circlebuf {
         if self.buf[self.read_pos] != 0 {
             println!("customer {} pop valuse {} from {}",pid,self.buf[self.read_pos],self.read_pos);
             self.buf[self.read_pos] = 0;
-            self.buf_count -= 1;
-            sys_sleep(1);
+            //sys_sleep(1);
             self.read_pos = (self.read_pos + 1) % 10;
         }else {
             println!("customer pop failed");
