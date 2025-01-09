@@ -86,10 +86,10 @@ pub fn sys_semaphore_up(id: usize) -> isize {
 pub fn sys_semaphore_down(id: usize) -> isize {
     syscall(SYSCALL_SEMAPHORE_DOWN, [id, 0, 0])
 }
-pub fn sys_get_share() -> isize {
-    syscall(SYSCALL_GET, [0, 0, 0])
+pub fn sys_get_share(pid: isize) -> isize {
+    syscall(SYSCALL_GET, [pid as usize, 0, 0])
 }
 
-pub fn sys_set_share() {
-    syscall(SYSCALL_SET, [0, 0, 0]);
+pub fn sys_set_share(pid: isize) {
+    syscall(SYSCALL_SET, [pid as usize, 0, 0]);
 }

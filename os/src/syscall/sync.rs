@@ -5,7 +5,37 @@ use alloc::sync::Arc;
 use lazy_static::*;
 use alloc::vec::Vec;
 
-static mut SHARE:isize = 1;
+
+struct Circlebuf {
+    buf: [i32; 10],
+    read_pos: usize,
+    write_pos: usize,
+}
+impl Circlebuf {
+    pub fn new() -> Self {
+        Self {
+            buf: [0; 10],
+            read_pos: 0,
+            write_pos: 0,
+        }
+    }
+    pub fn push(&mut self, pid: usize) {
+        self.buf[self.write_pos] = pid as i32;
+        sys_sleep(1);
+        println!("processer {} push valuse {} to {}",pid,pid,self.write_pos);
+        self.write_pos = (self.write_pos + 1) % 10;
+    }
+    pub fn pop(&mut self, pid: usize)  {
+        if self.buf[self.read_pos] != 0 {
+            self.buf[self.read_pos] = 0;
+            sys_sleep(1);
+            println!("customer {} pop valuse {} from {}",pid,pid,self.read_pos);
+            self.read_pos = (self.read_pos + 1) % 10;
+        }else {
+            println!("customer pop failed");
+        }
+    }
+}
 
 pub fn sys_sleep(ms: usize) -> isize {
     let expire_ms = get_time_ms() + ms;
@@ -13,6 +43,10 @@ pub fn sys_sleep(ms: usize) -> isize {
     add_timer(expire_ms, task);
     block_current_and_run_next();
     0
+}
+
+lazy_static! {
+    static ref CIRCLE_BUF: UPSafeCell<Circlebuf> = unsafe { UPSafeCell::new(Circlebuf ::new()) };
 }
 
 lazy_static! {
@@ -47,15 +81,12 @@ pub fn sys_semaphore_down(sem_id: usize) -> isize {
     sema.down();
     0
 }
-pub fn sys_get() -> isize {
-    unsafe {SHARE}
+pub fn sys_get(pid : usize) -> isize {
+    CIRCLE_BUF.exclusive_access().pop(pid);
+    0
 }
 
-pub fn sys_set() -> isize {
-    unsafe {
-        let temp:isize =SHARE+1;
-        sys_sleep(100);
-        SHARE =temp;
-    }
+pub fn sys_set(pid : usize) -> isize {
+    CIRCLE_BUF.exclusive_access().push(pid);
     0
 }

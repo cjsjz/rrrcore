@@ -8,7 +8,9 @@ use user_lib::{ fork, getpid, waitpid, get_share, set_share, sleep, semaphore_cr
 use user_lib::Vec;
 #[no_mangle]
 pub fn main() -> i32 {
-    //let sema:isize = semaphore_create(1);
+    let mutex:isize = semaphore_create(1);
+    let empty:isize = semaphore_create(10);
+    let full:isize = semaphore_create(0);
     let mut children: Vec<isize> = Vec::new();
 
     // 创建3个生产者子进程
@@ -16,11 +18,14 @@ pub fn main() -> i32 {
         let pid = fork();
         if pid == 0 {
             // 这是子进程，执行生产者逻辑
-            //semaphore_down(sema as usize);
-            println!("prodeucer: {} share's old value is {}.", getpid(), get_share());
-            set_share();
-            println!("prodeucer: {} share's new value is {}.", getpid(), get_share());
-            //semaphore_up(sema as usize);
+            for _ in 0..10 {
+                semaphore_down(empty as usize);
+                semaphore_down(mutex as usize);
+                set_share(getpid());
+                semaphore_up(mutex as usize);
+                semaphore_up(full as usize);
+                sleep(1);
+            }
             return 0; // 结束生产者子进程
         } else {
             // 父进程中记录子进程的PID
@@ -33,12 +38,14 @@ pub fn main() -> i32 {
         let pid = fork();
         if pid == 0 {
             // 这是子进程，执行消费者逻辑
-            //semaphore_down(sema as usize);
-            println!("customer: {} share's old value is {}.", getpid(), get_share());
-            // 进行消费逻辑
-            set_share(); // 可能是消费者的消费操作
-            println!("customer: {} share's new value is {}.", getpid(), get_share());
-            //semaphore_up(sema as usize);
+            for _ in 0..10 {
+                semaphore_down(empty as usize);
+                semaphore_down(mutex as usize);
+                get_share(getpid());
+                semaphore_up(mutex as usize);
+                semaphore_up(full as usize);
+                sleep(1);
+            }
             return 0; // 结束消费者子进程
         } else {
             // 父进程中记录子进程的PID

@@ -100,9 +100,9 @@ pub fn semaphore_up(sem_id: usize) {
 pub fn semaphore_down(sem_id: usize) {
     sys_semaphore_down(sem_id);
 }
-pub fn get_share() -> isize {
-    sys_get_share()
+pub fn get_share(pid: isize) -> isize {
+    sys_get_share(pid)
 }
-pub fn set_share() {
-    sys_set_share();
+pub fn set_share(pid: isize) {
+    sys_set_share(pid);
 }
