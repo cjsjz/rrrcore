@@ -34,16 +34,16 @@ pub fn main() -> i32 {
     }
 
     // 创建4个消费者子进程
-    for _ in 0..4 {
+    for _ in 0..3 {
         let pid = fork();
         if pid == 0 {
             // 这是子进程，执行消费者逻辑
             for _ in 0..10 {
-                semaphore_down(empty as usize);
+                semaphore_down(full as usize);
                 semaphore_down(mutex as usize);
                 get_share(getpid());
                 semaphore_up(mutex as usize);
-                semaphore_up(full as usize);
+                semaphore_up(empty as usize);
                 sleep(1);
             }
             return 0; // 结束消费者子进程

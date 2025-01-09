@@ -27,9 +27,9 @@ impl Circlebuf {
     }
     pub fn pop(&mut self, pid: usize)  {
         if self.buf[self.read_pos] != 0 {
+            println!("customer {} pop valuse {} from {}",pid,self.buf[self.read_pos],self.read_pos);
             self.buf[self.read_pos] = 0;
             sys_sleep(1);
-            println!("customer {} pop valuse {} from {}",pid,pid,self.read_pos);
             self.read_pos = (self.read_pos + 1) % 10;
         }else {
             println!("customer pop failed");
