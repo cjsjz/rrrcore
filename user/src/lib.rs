@@ -8,6 +8,8 @@ pub mod console;
 mod lang_items;
 mod syscall;
 
+extern crate alloc;
+pub use alloc::vec::Vec;
 use buddy_system_allocator::LockedHeap;
 use syscall::*;
 

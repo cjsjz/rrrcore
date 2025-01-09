@@ -34,7 +34,7 @@ pub fn sys_semaphore_up(sem_id: usize) -> isize {
     let sema = Arc::clone(sema_vec[sem_id-1].as_ref().unwrap());
     drop(sema_vec);
     sema.up();
-    println!("sem_id is {}",sem_id);
+    //println!("sem_id is {}",sem_id);
     0
 }
 pub fn sys_semaphore_down(sem_id: usize) -> isize {
