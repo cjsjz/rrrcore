@@ -30,13 +30,15 @@ impl Monitor {
     }
     ///Enter the monitor
     pub fn enter(&self) {
-        // Acquire the mutex semaphore
+        // 获取 `inner` 的锁，并释放后执行阻塞操作
         let inner = self.inner.exclusive_access();
-        sys_semaphore_down(inner.mutex);
+        let mutex = inner.mutex;
+        drop(inner); // 显式释放锁
+        sys_semaphore_down(mutex);
     }
+    
     ///Exit the monitor
     pub fn leave(&self) {
-        // Release the mutex semaphore
         let inner = self.inner.exclusive_access();
         if inner.next_count > 0 {
             sys_semaphore_up(inner.next);
@@ -46,15 +48,17 @@ impl Monitor {
     }
     ///Wait for the monitor
     pub fn wait(&self, x_sema_id: usize) {
-        // Acquire the x_semaphore semaphore
         let mut inner = self.inner.exclusive_access();
         inner.x_count[x_sema_id] += 1;
         if inner.next_count > 0 {
             sys_semaphore_up(inner.next);
         } else {
             sys_semaphore_up(inner.mutex);
-            }
-        sys_semaphore_down(x_sema_id);
+        }
+        let x_sema = x_sema_id;
+        drop(inner); // 显式释放锁
+        sys_semaphore_down(x_sema);
+        let mut inner = self.inner.exclusive_access();
         inner.x_count[x_sema_id] -= 1;
     }
     ///Signal the monitor
@@ -63,7 +67,10 @@ impl Monitor {
         if inner.x_count[x_sema_id] > 0 {
             inner.next_count += 1;
             sys_semaphore_up(x_sema_id);
-            sys_semaphore_down(inner.next);
+            let next = inner.next;
+            drop(inner); // 显式释放锁
+            sys_semaphore_down(next);
+            let mut inner = self.inner.exclusive_access();
             inner.next_count -= 1;
         }
     }

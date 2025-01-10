@@ -112,14 +112,18 @@ pub fn sys_get_buf_count() -> isize {
 ///Enter a monitor
 pub fn sys_monitor_enter() -> isize {
     let monitor = MONITOR.exclusive_access();
-    monitor.enter();
+    let monitor_clone = Arc::clone(&monitor);
+    drop(monitor);
+    monitor_clone.enter();
     0
 }
 
 ///Leave a monitor
 pub fn sys_monitor_leave() -> isize {
     let monitor = MONITOR.exclusive_access();
-    monitor.leave();
+    let monitor_clone = Arc::clone(&monitor);
+    drop(monitor);
+    monitor_clone.leave();
     0
 }
 
