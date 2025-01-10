@@ -14,7 +14,12 @@ const SYSCALL_SLEEP: usize = 101;
 const SYSCALL_SEMAPHORE_CREATE: usize = 1020;
 const SYSCALL_SEMAPHORE_UP: usize = 1021;
 const SYSCALL_SEMAPHORE_DOWN: usize = 1022;
-
+const SYSCALL_MONITOR_ENTER: usize = 1023;
+const SYSCALL_MONITOR_LEAVE: usize = 1024;  
+const SYSCALL_MONITOR_WAIT: usize = 1025;
+const SYSCALL_MONITOR_SIGNAL: usize = 1026;
+const SYSCALL_SET_CONDITON_VAR: usize = 1027;
+const SYSCALL_GET_BUF_COUNT: usize = 1028;
 const SYSCALL_GET: usize = 2024;
 const SYSCALL_SET: usize = 2025;
 fn syscall(id: usize, args: [usize; 3]) -> isize {
@@ -93,3 +98,28 @@ pub fn sys_get_share(pid: isize) -> isize {
 pub fn sys_set_share(pid: isize) {
     syscall(SYSCALL_SET, [pid as usize, 0, 0]);
 }
+
+pub fn sys_monitor_enter() {
+    syscall(SYSCALL_MONITOR_ENTER, [0, 0, 0]);
+}
+
+pub fn sys_monitor_leave() {
+    syscall(SYSCALL_MONITOR_LEAVE, [0, 0, 0]);
+}
+
+pub fn sys_monitor_wait(x_sema_id: isize) {
+    syscall(SYSCALL_MONITOR_WAIT, [x_sema_id as usize, 0, 0]);
+}
+
+pub fn sys_monitor_signal(x_sema_id: isize) {
+    syscall(SYSCALL_MONITOR_SIGNAL, [x_sema_id as usize, 0, 0]);
+}
+
+pub fn sys_set_condition_var(x_sema_id: isize, value: isize) {
+    syscall(SYSCALL_SET_CONDITON_VAR, [x_sema_id as usize, value as usize, 0]);
+}
+
+pub fn sys_get_buf_count() -> isize{
+    syscall(SYSCALL_GET_BUF_COUNT, [0, 0, 0])
+}
+

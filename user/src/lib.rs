@@ -106,3 +106,38 @@ pub fn get_share(pid: isize) -> isize {
 pub fn set_share(pid: isize) {
     sys_set_share(pid);
 }
+pub struct Monitor {
+    notfull:isize,
+    notempty:isize,
+}
+
+impl Monitor {
+    pub fn new() -> Self {
+        Self {
+            notfull:semaphore_create(0),
+            notempty:semaphore_create(0),
+        }
+    }
+    pub fn append(&mut self, pid: isize) {
+        sys_monitor_enter();
+        if sys_get_buf_count()==10 {
+            sys_monitor_wait(self.notfull);
+        }
+        set_share(pid);
+        sys_monitor_signal(self.notempty);
+        sys_monitor_leave();
+    }
+    pub fn take(&mut self, pid: isize) {
+        sys_monitor_enter();
+        if sys_get_buf_count()==0 {
+            sys_monitor_wait(self.notempty);
+        }
+        get_share(pid);
+        sys_monitor_signal(self.notfull);
+        sys_monitor_leave();
+    }
+    pub fn init_monitor(&mut self) {
+        sys_set_condition_var(self.notfull, 10);
+        sys_set_condition_var(self.notempty, 0);
+    }
+}

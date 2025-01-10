@@ -23,7 +23,12 @@ const SYSCALL_SLEEP: usize = 101;
 const SYSCALL_SEMAPHORE_CREATE: usize = 1020;
 const SYSCALL_SEMAPHORE_UP: usize = 1021;
 const SYSCALL_SEMAPHORE_DOWN: usize = 1022;
-
+const SYSCALL_MONITOR_ENTER: usize = 1023;
+const SYSCALL_MONITOR_LEAVE: usize = 1024;  
+const SYSCALL_MONITOR_WAIT: usize = 1025;
+const SYSCALL_MONITOR_SIGNAL: usize = 1026;
+const SYSCALL_SET_CONDITON_VAR: usize = 1027;
+const SYSCALL_GET_BUF_COUNT: usize = 1028;
 const SYSCALL_GET: usize = 2024;
 const SYSCALL_SET: usize = 2025;
 
@@ -34,6 +39,7 @@ mod sync;
 use fs::*;
 use process::*;
 use sync::*;
+pub use sync::{sys_semaphore_create, sys_semaphore_down, sys_semaphore_up};
 /// handle syscall exception with `syscall_id` and other arguments
 pub fn syscall(syscall_id: usize, args: [usize; 3]) -> isize {
     match syscall_id {
@@ -43,15 +49,21 @@ pub fn syscall(syscall_id: usize, args: [usize; 3]) -> isize {
         SYSCALL_YIELD => sys_yield(),
         SYSCALL_GET_TIME => sys_get_time(),
         SYSCALL_GETPID => sys_getpid(),
-        SYSCALL_GET => sys_get(args[0]),
-        SYSCALL_SET => sys_set(args[0]),
         SYSCALL_FORK => sys_fork(),
         SYSCALL_EXEC => sys_exec(args[0] as *const u8),
+        SYSCALL_WAITPID => sys_waitpid(args[0] as isize, args[1] as *mut i32),
         SYSCALL_SLEEP => sys_sleep(args[0]),
         SYSCALL_SEMAPHORE_CREATE => sys_semaphore_create(args[0]),
         SYSCALL_SEMAPHORE_UP => sys_semaphore_up(args[0]),
         SYSCALL_SEMAPHORE_DOWN => sys_semaphore_down(args[0]),
-        SYSCALL_WAITPID => sys_waitpid(args[0] as isize, args[1] as *mut i32),
+        SYSCALL_GET => sys_get(args[0]),
+        SYSCALL_SET => sys_set(args[0]),
+        SYSCALL_MONITOR_ENTER => sys_monitor_enter(),
+        SYSCALL_MONITOR_LEAVE => sys_monitor_leave(),
+        SYSCALL_MONITOR_WAIT => sys_monitor_wait(args[0]),
+        SYSCALL_MONITOR_SIGNAL => sys_monitor_signal(args[0]),
+        SYSCALL_SET_CONDITON_VAR => sys_set_condition_var(args[0], args[1]),
+        SYSCALL_GET_BUF_COUNT => sys_get_buf_count(),
         _ => panic!("Unsupported syscall_id: {}", syscall_id),
     }
 }
