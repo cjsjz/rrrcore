@@ -137,7 +137,7 @@ impl Monitor {
         sys_monitor_leave();
     }
     pub fn init_monitor(&mut self) {
-        sys_set_condition_var(self.notfull, 10);
+        sys_set_condition_var(self.notfull, 0);
         sys_set_condition_var(self.notempty, 0);
     }
 }
